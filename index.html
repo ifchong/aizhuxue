@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI智学——人工智能驱动的编程教育平台</title>
+    <style>
+        :root {
+            --primary-color: #4a6bdf;
+            --secondary-color: #f5f7ff;
+            --accent-color: #ff6b6b;
+            --text-color: #333;
+            --light-text: #777;
+            --border-color: #e0e0e0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f9f9f9;
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+            background: linear-gradient(135deg, var(--primary-color), #6a5acd);
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .code-section {
+            grid-column: 1 / 2;
+        }
+        
+        .results-section {
+            grid-column: 2 / 3;
+            display: grid;
+            grid-template-rows: auto auto auto auto;
+            gap: 20px;
+        }
+        
+        .panel {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .panel:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .panel-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 300px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            resize: vertical;
+            margin-bottom: 15px;
+        }
+        
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.2s;
+        }
+        
+        button:hover {
+            background-color: #3a5bd0;
+        }
+        
+        button.secondary {
+            background-color: var(--accent-color);
+        }
+        
+        button.secondary:hover {
+            background-color: #e05a5a;
+        }
+        
+        .suggestion-item {
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed var(--border-color);
+        }
+        
+        .suggestion-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        
+        .history-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: var(--secondary-color);
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .history-item:hover {
+            background-color: #e0e5ff;
+        }
+        
+        .history-item .timestamp {
+            color: var(--light-text);
+            font-size: 0.8rem;
+        }
+        
+        .score-display {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+        
+        .score-description {
+            text-align: center;
+            color: var(--light-text);
+        }
+        
+        .style-analysis {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .style-tag {
+            background-color: var(--secondary-color);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        
+        .style-tag.good {
+            background-color: #e1f7e1;
+            color: #2e7d32;
+        }
+        
+        .style-tag.bad {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        
+        .style-tag.neutral {
+            background-color: #fff8e1;
+            color: #f57f17;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        
+        .tab-button {
+            padding: 8px 15px;
+            background-color: #eee;
+            border: none;
+            cursor: pointer;
+            margin-right: 5px;
+            border-radius: 5px 5px 0 0;
+        }
+        
+        .tab-button.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .score-excellent {
+            color: #2e7d32;
+        }
+        
+        .score-good {
+            color: #4a6bdf;
+        }
+        
+        .score-fair {
+            color: #f57f17;
+        }
+        
+        .score-poor {
+            color: #c62828;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .code-section, .results-section {
+                grid-column: 1 / 2;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AI智学</h1>
+            <p class="subtitle">人工智能驱动的编程教育平台</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="code-section panel">
+                <h2 class="panel-title">C语言代码编辑器</h2>
+                <textarea id="code-input" placeholder="请在此输入您的C语言代码...">#include &lt;stdio.h&gt;
+
+int main() {
+    int a = 10;
+    int b = 20;
+    int sum = a + b;
+    
+    printf("The sum is: %d\n", sum);
+    
+    return 0;
+}</textarea>
+                <div class="tab-buttons">
+                    <button class="tab-button active" onclick="switchTab('analysis')">代码分析</button>
+                    <button class="tab-button" onclick="switchTab('history')">历史记录</button>
+                </div>
+                <button id="analyze-btn" onclick="analyzeCode()">分析代码</button>
+                <button class="secondary" onclick="clearCode()">清空代码</button>
+            </div>
+            
+            <div class="results-section">
+                <div id="analysis-results">
+                    <div class="panel" id="suggestions-panel">
+                        <h2 class="panel-title">修改建议</h2>
+                        <div id="suggestions-list">
+                            <div class="suggestion-item">
+                                <strong>建议1：</strong> 考虑添加注释解释代码功能
+                            </div>
+                            <div class="suggestion-item">
+                                <strong>建议2：</strong> 变量名可以更具描述性，如将'a'改为'firstNumber'
+                            </div>
+                            <div class="suggestion-item">
+                                <strong>建议3：</strong> 可以添加输入验证以提高代码健壮性
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="panel" id="score-panel">
+                        <h2 class="panel-title">动态代码评分</h2>
+                        <div class="score-display score-fair" id="score-value">65</div>
+                        <div class="score-description">一般 - 代码基本功能完整，但有多处需要改进</div>
+                    </div>
+                    
+                    <div class="panel" id="style-panel">
+                        <h2 class="panel-title">代码风格分析</h2>
+                        <div class="style-analysis">
+                            <span class="style-tag good">缩进一致</span>
+                            <span class="style-tag good">括号风格一致</span>
+                            <span class="style-tag bad">变量命名简单</span>
+                            <span class="style-tag bad">缺少注释</span>
+                            <span class="style-tag good">函数长度合适</span>
+                            <span class="style-tag bad">缺少错误处理</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="panel hidden" id="history-panel">
+                    <h2 class="panel-title">
+                        历史记录
+                        <button class="secondary" onclick="clearHistory()">清除历史</button>
+                    </h2>
+                    <div id="history-list">
+                        <div class="history-item" onclick="loadHistory(1)">
+                            <span>简单加法程序</span>
+                            <span class="timestamp">2023-05-15 14:30</span>
+                        </div>
+                        <div class="history-item" onclick="loadHistory(2)">
+                            <span>循环示例</span>
+                            <span class="timestamp">2023-05-14 09:15</span>
+                        </div>
+                        <div class="history-item" onclick="loadHistory(3)">
+                            <span>指针练习</span>
+                            <span class="timestamp">2023-05-12 16:45</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 更严格的代码分析功能
+        function analyzeCode() {
+            const code = document.getElementById('code-input').value;
+            
+            if (!code.trim()) {
+                alert('请输入要分析的代码');
+                return;
+            }
+            
+            // 严格的分析结果
+            const score = calculateStrictScore(code);
+            const suggestions = generateStrictSuggestions(code);
+            const styleAnalysis = analyzeStrictCodeStyle(code);
+            
+            // 更新UI
+            updateScoreDisplay(score);
+            updateSuggestions(suggestions);
+            updateStyleAnalysis(styleAnalysis);
+            
+            // 添加到历史记录
+            addToHistory('用户代码', code);
+            
+            alert('代码分析完成');
+        }
+        
+        function calculateStrictScore(code) {
+            let score = 100; // 从满分开始扣分
+            
+            // 1. 代码结构检查 (20分)
+            if (!code.match(/int main\s*\(.*\)\s*\{/)) score -= 20;
+            
+            // 2. 注释检查 (15分)
+            const commentRatio = (code.match(/\/\/|\/\*|\*\//g) || []).length / 
+                               (code.split('\n').length || 1);
+            if (commentRatio < 0.2) score -= 15; // 至少20%的注释
+            
+            // 3. 变量命名检查 (15分)
+            const badVars = code.match(/\b(int|char|float|double)\s+([a-d]|temp|tmp|var\d*)\b/g);
+            if (badVars) score -= Math.min(15, badVars.length * 3);
+            
+            // 4. 错误处理检查 (15分)
+            if (!code.match(/if\s*\(.*\)|switch\s*\(.*\)|try|catch|assert/g)) score -= 15;
+            
+            // 5. 函数长度检查 (10分)
+            const functions = code.match(/\b\w+\s+\w+\s*\(.*\)\s*\{/g) || [];
+            functions.forEach(func => {
+                const funcBody = extractFunctionBody(code, func);
+                if (funcBody.split('\n').length > 20) score -= 2; // 每个过长函数扣2分
+            });
+            
+            // 6. 代码重复检查 (10分)
+            if (hasCodeDuplication(code)) score -= 10;
+            
+            // 7. 内存管理检查 (10分)
+            if (code.includes('malloc') && !code.includes('free')) score -= 10;
+            if (code.includes('fopen') && !code.includes('fclose')) score -= 10;
+            
+            // 8. 魔法数字检查 (5分)
+            const magicNumbers = code.match(/\b\d+\b/g) || [];
+            const uniqueMagicNumbers = [...new Set(magicNumbers)];
+            if (uniqueMagicNumbers.length > 3) score -= 5;
+            
+            // 确保分数在0-100之间
+            return Math.max(0, Math.min(100, Math.floor(score)));
+        }
+        
+        function extractFunctionBody(code, funcDecl) {
+            // 简化版函数体提取
+            const start = code.indexOf(funcDecl) + funcDecl.length;
+            let braceCount = 1;
+            let end = start;
+            
+            while (braceCount > 0 && end < code.length) {
+                if (code[end] === '{') braceCount++;
+                if (code[end] === '}') braceCount--;
+                end++;
+            }
+            
+            return code.substring(start, end);
+        }
+        
+        function hasCodeDuplication(code) {
+            // 简化版代码重复检测
+            const lines = code.split('\n').filter(line => line.trim().length > 0);
+            const lineCounts = {};
+            
+            lines.forEach(line => {
+                const key = line.trim().replace(/\s+/g, ' ');
+                lineCounts[key] = (lineCounts[key] || 0) + 1;
+            });
+            
+            return Object.values(lineCounts).some(count => count > 3);
+        }
+        
+        function generateStrictSuggestions(code) {
+            const suggestions = [];
+            
+            // 1. 注释建议
+            const commentLines = (code.match(/\/\/|\/\*|\*\//g) || []).length;
+            const totalLines = code.split('\n').length;
+            if (commentLines / totalLines < 0.2) {
+                suggestions.push('代码注释不足，建议至少20%的代码行有注释');
+            }
+            
+            // 2. 变量命名建议
+            const badVars = code.match(/\b(int|char|float|double)\s+([a-d]|temp|tmp|var\d*)\b/g);
+            if (badVars) {
+                suggestions.push(`变量命名不规范: ${badVars.join(', ')}，建议使用有意义的名称`);
+            }
+            
+            // 3. 错误处理建议
+            if (!code.match(/if\s*\(.*\)|switch\s*\(.*\)|try|catch|assert/g)) {
+                suggestions.push('代码缺乏错误处理逻辑，建议添加输入验证和异常处理');
+            }
+            
+            // 4. 函数长度建议
+            const functions = code.match(/\b\w+\s+\w+\s*\(.*\)\s*\{/g) || [];
+            functions.forEach(func => {
+                const funcBody = extractFunctionBody(code, func);
+                if (funcBody.split('\n').length > 20) {
+                    const funcName = func.split(/\s+/)[1] || '匿名函数';
+                    suggestions.push(`函数"${funcName.split('(')[0]}"过长(超过20行)，建议拆分为更小的函数`);
+                }
+            });
+            
+            // 5. 内存管理建议
+            if (code.includes('malloc') && !code.includes('free')) {
+                suggestions.push('检测到malloc但没有对应的free，可能导致内存泄漏');
+            }
+            if (code.includes('fopen') && !code.includes('fclose')) {
+                suggestions.push('检测到fopen但没有对应的fclose，可能导致资源泄漏');
+            }
+            
+            // 6. 魔法数字建议
+            const magicNumbers = [...new Set(code.match(/\b\d+\b/g) || [])];
+            if (magicNumbers.length > 3) {
+                suggestions.push(`检测到魔法数字: ${magicNumbers.join(', ')}，建议定义为常量`);
+            }
+            
+            // 如果没有其他建议，添加通用建议
+            if (suggestions.length === 0) {
+                suggestions.push('代码结构良好，可以考虑添加单元测试');
+            }
+            
+            return suggestions;
+        }
+        
+        function analyzeStrictCodeStyle(code) {
+            const styles = [];
+            
+            // 1. 缩进检查
+            const lines = code.split('\n');
+            let consistentIndent = true;
+            const firstLineIndent = lines[1] ? lines[1].match(/^\s*/)[0].length : 0;
+            
+            for (let i = 1; i < lines.length; i++) {
+                if (lines[i].trim() && lines[i].match(/^\s*/)[0].length !== firstLineIndent) {
+                    consistentIndent = false;
+                    break;
+                }
+            }
+            
+            if (consistentIndent) {
+                styles.push({tag: '缩进一致', type: 'good'});
+            } else {
+                styles.push({tag: '缩进不一致', type: 'bad'});
+            }
+            
+            // 2. 括号风格检查
+            if (code.includes('){') || code.includes('} else')) {
+                styles.push({tag: '括号风格一致', type: 'good'});
+            } else {
+                styles.push({tag: '括号风格不一致', type: 'bad'});
+            }
+            
+            // 3. 变量命名检查
+            const badVars = code.match(/\b(int|char|float|double)\s+([a-d]|temp|tmp|var\d*)\b/g);
+            if (badVars) {
+                styles.push({tag: '变量命名不规范', type: 'bad'});
+            } else {
+                styles.push({tag: '变量命名规范', type: 'good'});
+            }
+            
+            // 4. 注释检查
+            const commentRatio = (code.match(/\/\/|\/\*|\*\//g) || []).length / 
+                               (code.split('\n').length || 1);
+            if (commentRatio < 0.2) {
+                styles.push({tag: '注释不足', type: 'bad'});
+            } else {
+                styles.push({tag: '注释适当', type: 'good'});
+            }
+            
+            // 5. 错误处理检查
+            if (!code.match(/if\s*\(.*\)|switch\s*\(.*\)|try|catch|assert/g)) {
+                styles.push({tag: '缺乏错误处理', type: 'bad'});
+            } else {
+                styles.push({tag: '有错误处理', type: 'good'});
+            }
+            
+            // 6. 函数长度检查
+            const longFunctions = (code.match(/\b\w+\s+\w+\s*\(.*\)\s*\{/g) || [])
+                .filter(func => {
+                    const funcBody = extractFunctionBody(code, func);
+                    return funcBody.split('\n').length > 20;
+                });
+            
+            if (longFunctions.length > 0) {
+                styles.push({tag: '有过长函数', type: 'bad'});
+            } else {
+                styles.push({tag: '函数长度合适', type: 'good'});
+            }
+            
+            // 7. 内存管理检查
+            if ((code.includes('malloc') && !code.includes('free')) || 
+                (code.includes('fopen') && !code.includes('fclose'))) {
+                styles.push({tag: '资源管理问题', type: 'bad'});
+            } else if (code.includes('malloc') || code.includes('fopen')) {
+                styles.push({tag: '资源管理良好', type: 'good'});
+            }
+            
+            return styles;
+        }
+        
+        function updateScoreDisplay(score) {
+            const scoreElement = document.getElementById('score-value');
+            scoreElement.textContent = score;
+            
+            // 根据分数设置颜色和描述
+            let description = '';
+            if (score >= 90) {
+                scoreElement.className = 'score-display score-excellent';
+                description = '优秀 - 代码质量非常高';
+            } else if (score >= 75) {
+                scoreElement.className = 'score-display score-good';
+                description = '良好 - 代码质量不错，但有改进空间';
+            } else if (score >= 60) {
+                scoreElement.className = 'score-display score-fair';
+                description = '一般 - 代码基本功能完整，但有多处需要改进';
+            } else {
+                scoreElement.className = 'score-display score-poor';
+                description = '较差 - 代码需要重大改进';
+            }
+            
+            document.querySelector('.score-description').textContent = description;
+        }
+        
+        function updateSuggestions(suggestions) {
+            const list = document.getElementById('suggestions-list');
+            list.innerHTML = '';
+            
+            suggestions.forEach((suggestion, index) => {
+                const item = document.createElement('div');
+                item.className = 'suggestion-item';
+                item.innerHTML = `<strong>建议${index + 1}：</strong> ${suggestion}`;
+                list.appendChild(item);
+            });
+        }
+        
+        function updateStyleAnalysis(styles) {
+            const container = document.querySelector('.style-analysis');
+            container.innerHTML = '';
+            
+            styles.forEach(style => {
+                const tag = document.createElement('span');
+                tag.className = `style-tag ${style.type}`;
+                tag.textContent = style.tag;
+                container.appendChild(tag);
+            });
+        }
+        
+        function clearCode() {
+            document.getElementById('code-input').value = '';
+        }
+        
+        // 历史记录功能
+        function addToHistory(title, code) {
+            const now = new Date();
+            const timestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            
+            const historyList = document.getElementById('history-list');
+            const newItem = document.createElement('div');
+            newItem.className = 'history-item';
+            newItem.innerHTML = `<span>${title}</span><span class="timestamp">${timestamp}</span>`;
+            newItem.onclick = function() { loadHistory(0); };
+            
+            historyList.insertBefore(newItem, historyList.firstChild);
+        }
+        
+        function loadHistory(id) {
+            const sampleCode = [
+                `#include <stdio.h>\n\nint main() {\n    printf("Hello, World!\\n");\n    return 0;\n}`,
+                `#include <stdio.h>\n\nint main() {\n    for(int i = 0; i < 10; i++) {\n        printf("%d\\n", i);\n    }\n    return 0;\n}`,
+                `#include <stdio.h>\n\nvoid swap(int *a, int *b) {\n    int temp = *a;\n    *a = *b;\n    *b = temp;\n}\n\nint main() {\n    int x = 5, y = 10;\n    swap(&x, &y);\n    printf("x=%d, y=%d\\n", x, y);\n    return 0;\n}`
+            ];
+            
+            document.getElementById('code-input').value = sampleCode[id] || sampleCode[0];
+            switchTab('analysis');
+        }
+        
+        function clearHistory() {
+            if (confirm('确定要清除所有历史记录吗？')) {
+                document.getElementById('history-list').innerHTML = '';
+            }
+        }
+        
+        // 标签切换功能
+        function switchTab(tabName) {
+            const analysisTab = document.getElementById('analysis-results');
+            const historyTab = document.getElementById('history-panel');
+            const tabButtons = document.querySelectorAll('.tab-button');
+            
+            if (tabName === 'analysis') {
+                analysisTab.classList.remove('hidden');
+                historyTab.classList.add('hidden');
+                tabButtons[0].classList.add('active');
+                tabButtons[1].classList.remove('active');
+            } else {
+                analysisTab.classList.add('hidden');
+                historyTab.classList.remove('hidden');
+                tabButtons[0].classList.remove('active');
+                tabButtons[1].classList.add('active');
+            }
+        }
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            const code = document.getElementById('code-input').value;
+            const score = calculateStrictScore(code);
+            const suggestions = generateStrictSuggestions(code);
+            const styleAnalysis = analyzeStrictCodeStyle(code);
+            
+            updateScoreDisplay(score);
+            updateSuggestions(suggestions);
+            updateStyleAnalysis(styleAnalysis);
+        });
+    </script>
+<!-- 水印模块 -->
+<div class="watermark">
+    本网站由if chong制作
+</div>
+
+<style>
+    .watermark {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        opacity: 0.7;
+        font-size: 14px;
+        color: var(--primary-color);
+        z-index: 1000;
+        font-family: 'Microsoft YaHei', sans-serif;
+        background: rgba(255,255,255,0.7);
+        padding: 5px 10px;
+        border-radius: 4px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+</style>
+</body>
+</html>
