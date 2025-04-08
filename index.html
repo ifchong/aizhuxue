@@ -247,6 +247,21 @@
                 grid-column: 1 / 2;
             }
         }
+        
+        .watermark {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            opacity: 0.7;
+            font-size: 14px;
+            color: var(--primary-color);
+            z-index: 1000;
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: rgba(255,255,255,0.7);
+            padding: 5px 10px;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
 <body>
@@ -262,13 +277,13 @@
                 <textarea id="code-input" placeholder="请在此输入您的C语言代码...">#include &lt;stdio.h&gt;
 
 int main() {
-    int a = 10;
+    int a = 10
     int b = 20;
-    int sum = a + b;
+    int sum = a + b
     
     printf("The sum is: %d\n", sum);
     
-    return 0;
+    return 0
 }</textarea>
                 <div class="tab-buttons">
                     <button class="tab-button active" onclick="switchTab('analysis')">代码分析</button>
@@ -296,7 +311,7 @@ int main() {
                     </div>
                     
                     <div class="panel" id="score-panel">
-                        <h2 class="panel-title">动态代码评分</h2>
+                        <h2 class="panel-title">代码评分</h2>
                         <div class="score-display score-fair" id="score-value">65</div>
                         <div class="score-description">一般 - 代码基本功能完整，但有多处需要改进</div>
                     </div>
@@ -361,7 +376,7 @@ int main() {
             // 添加到历史记录
             addToHistory('用户代码', code);
             
-            alert('代码分析完成');
+            alert('代码分析完成！');
         }
         
         function calculateStrictScore(code) {
@@ -401,8 +416,63 @@ int main() {
             const uniqueMagicNumbers = [...new Set(magicNumbers)];
             if (uniqueMagicNumbers.length > 3) score -= 5;
             
+            // 9. 分号使用检查 (10分)
+            const semicolonErrors = checkSemicolonUsage(code);
+            score -= semicolonErrors * 2; // 每个分号错误扣2分，最多扣10分
+            
             // 确保分数在0-100之间
             return Math.max(0, Math.min(100, Math.floor(score)));
+        }
+        
+        // 分号使用检查函数
+        function checkSemicolonUsage(code) {
+            let errorCount = 0;
+            const lines = code.split('\n');
+            
+            // 检查常见需要分号的位置
+            const statementsNeedingSemicolon = [
+                // 变量声明
+                { regex: /^\s*\b(int|char|float|double|void)\s+\w+\s*(?:=\s*[^;]+)?$/ },
+                // 表达式语句
+                { regex: /^\s*\b\w+\s*=\s*[^;]+$/ },
+                // 函数调用
+                { regex: /^\s*\b\w+\s*\([^)]*\)\s*$/ },
+                // return语句
+                { regex: /^\s*return\s+[^;]+$/ },
+                // break/continue
+                { regex: /^\s*(break|continue)\s*$/ }
+            ];
+            
+            // 检查不应该有分号的位置
+            const statementsNotNeedingSemicolon = [
+                // 函数定义后
+                { regex: /^\s*\b\w+\s+\w+\s*\([^)]*\)\s*\{.*;\s*\};$/ },
+                // if/for/while等控制语句后
+                { regex: /^\s*(if|for|while|switch)\s*\([^)]*\)\s*\{.*;\s*\};$/ }
+            ];
+            
+            lines.forEach(line => {
+                const trimmedLine = line.trim();
+                
+                // 跳过空行和只有大括号的行
+                if (!trimmedLine || trimmedLine === '{' || trimmedLine === '}') return;
+                
+                // 检查需要分号但缺少的情况
+                statementsNeedingSemicolon.forEach(rule => {
+                    if (rule.regex.test(trimmedLine) && !trimmedLine.endsWith(';')) {
+                        errorCount++;
+                    }
+                });
+                
+                // 检查不应该有分号但存在的情况
+                statementsNotNeedingSemicolon.forEach(rule => {
+                    if (rule.regex.test(trimmedLine)) {
+                        errorCount++;
+                    }
+                });
+            });
+            
+            return Math.min(5, errorCount); // 最多返回5个错误
         }
         
         function extractFunctionBody(code, funcDecl) {
@@ -476,6 +546,12 @@ int main() {
             const magicNumbers = [...new Set(code.match(/\b\d+\b/g) || [])];
             if (magicNumbers.length > 3) {
                 suggestions.push(`检测到魔法数字: ${magicNumbers.join(', ')}，建议定义为常量`);
+            }
+            
+            // 7. 分号使用建议
+            const semicolonErrors = checkSemicolonUsage(code);
+            if (semicolonErrors > 0) {
+                suggestions.push(`发现${semicolonErrors}处分号使用问题，请检查语句结尾是否缺少分号或控制结构后是否多余分号`);
             }
             
             // 如果没有其他建议，添加通用建议
@@ -557,6 +633,14 @@ int main() {
                 styles.push({tag: '资源管理问题', type: 'bad'});
             } else if (code.includes('malloc') || code.includes('fopen')) {
                 styles.push({tag: '资源管理良好', type: 'good'});
+            }
+            
+            // 8. 分号使用风格检查
+            const semicolonErrors = checkSemicolonUsage(code);
+            if (semicolonErrors > 0) {
+                styles.push({tag: '分号使用问题', type: 'bad'});
+            } else {
+                styles.push({tag: '分号使用规范', type: 'good'});
             }
             
             return styles;
@@ -675,26 +759,9 @@ int main() {
             updateStyleAnalysis(styleAnalysis);
         });
     </script>
-<!-- 水印模块 -->
-<div class="watermark">
-    本网站由if chong制作
-</div>
-
-<style>
-    .watermark {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        opacity: 0.7;
-        font-size: 14px;
-        color: var(--primary-color);
-        z-index: 1000;
-        font-family: 'Microsoft YaHei', sans-serif;
-        background: rgba(255,255,255,0.7);
-        padding: 5px 10px;
-        border-radius: 4px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-</style>
+    
+    <div class="watermark">
+        本网站由if chong制作
+    </div>
 </body>
 </html>
